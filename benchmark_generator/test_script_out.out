@@ -1,0 +1,77 @@
+Script started on 2016年08月25日 星期四 18时05分04秒
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ cdls
+cdls: command not found
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ ls
+command_p2.sh  [0m[01;32mgenerator[0m   generator2.cmi  generator2.ml  generator.cmo  Makefile  [01;34mp2[0m
+command.sh     [01;32mgenerator2[0m  generator2.cmo  generator.cmi  generator.ml   [01;34mp1[0m        test_script_out.out
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ ls
+command_p2.sh  [0m[01;32mgenerator[0m   generator2.cmi  generator2.ml  generator.cmo  Makefile  [01;34mp2[0m
+command.sh     [01;32mgenerator2[0m  generator2.cmo  generator.cmi  generator.ml   [01;34mp1[0m        test_script_out.out
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ sdfsdfsdf
+sdfsdfsdf: command not found
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ 
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ 
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ 
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ 
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ 
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ s
+dfs: command not found
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ df
+sdf
+sdf
+Filesystem     1K-blocks     Used Available Use% Mounted on
+udev             4090136        0   4090136   0% /dev
+tmpfs             822516     9644    812872   2% /run
+/dev/sda10      21595352 11453068   9022236  56% /
+tmpfs            4112568     5576   4106992   1% /dev/shm
+tmpfs               5120        4      5116   1% /run/lock
+tmpfs            4112568        0   4112568   0% /sys/fs/cgroup
+tmpfs             822516       68    822448   1% /run/user/1000
+/dev/sdb4        7800288  3745032   4055256  49% /media/jian/18810459835
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ sdf
+sThe program 'sdf' is currently not installed. You can install it by typing:
+sudo apt install sdf
+
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ sdf
+dfThe program 'sdf' is currently not installed. You can install it by typing:
+sudo apt install sdf
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ s
+s: command not found
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ df
+Filesystem     1K-blocks     Used Available Use% Mounted on
+udev             4090136        0   4090136   0% /dev
+tmpfs             822516     9644    812872   2% /run
+/dev/sda10      21595352 11453072   9022232  56% /
+tmpfs            4112568     5576   4106992   1% /dev/shm
+tmpfs               5120        4      5116   1% /run/lock
+tmpfs            4112568        0   4112568   0% /sys/fs/cgroup
+tmpfs             822516       68    822448   1% /run/user/1000
+/dev/sdb4        7800288  3745032   4055256  49% /media/jian/18810459835
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ sdf
+The program 'sdf' is currently not installed. You can install it by typing:
+sudo apt install sdf
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ sd
+fThe program 'sd' is currently not installed. You can install it by typing:
+sudo apt install sd
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ fdu
+No command 'fdu' found, did you mean:
+ Command 'fdk' from package 'plastimatch' (universe)
+ Command 'fdp' from package 'graphviz' (main)
+ Command 'xdu' from package 'xdu' (universe)
+ Command 'fd' from package 'fdclone' (universe)
+ Command 'fdm' from package 'fdm' (universe)
+ Command 'du' from package 'coreutils' (main)
+ Command 'mdu' from package 'mtools' (main)
+ Command 'vdu' from package 'util-vserver' (universe)
+fdu: command not found
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ df
+Filesystem     1K-blocks     Used Available Use% Mounted on
+udev             4090136        0   4090136   0% /dev
+tmpfs             822516     9644    812872   2% /run
+/dev/sda10      21595352 11453080   9022224  56% /
+tmpfs            4112568     5576   4106992   1% /dev/shm
+tmpfs               5120        4      5116   1% /run/lock
+tmpfs            4112568        0   4112568   0% /sys/fs/cgroup
+tmpfs             822516       68    822448   1% /run/user/1000
+/dev/sdb4        7800288  3745032   4055256  49% /media/jian/18810459835
+]0;jian@Lenovo: ~/benchmark_generator[01;32mjian@Lenovo[00m:[01;34m~/benchmark_generator[00m$ exit
