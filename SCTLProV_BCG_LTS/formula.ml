@@ -1,10 +1,8 @@
 (* open Term *)
 open Ks
 
-type state = 
-	| SVar of string
-	| State of kstate
-
+type state = SVar of string | State of kstate
+type action =  Tau | T | F | Label of string
 type formula = 
 	  Top
 	| Bottom
@@ -12,12 +10,12 @@ type formula =
 	| Neg of formula
 	| And of formula * formula
 	| Or of formula * formula
-	| AX of state * formula * state
-	| EX of state * formula * state
-	| AF of state * formula * state
-	| EG of state * formula * state
-	| AR of state * state * formula * formula * state
-	| EU of state * state * formula * formula * state
+	| AX of action * string * formula * state
+	| EX of action * string * formula * state
+	| AF of action * string * formula * state
+	| EG of action * string * formula * state
+	| AR of action * string * string * formula * formula * state
+	| EU of action * string * string * formula * formula * state
 
 let str_state s = 
 	match s with
