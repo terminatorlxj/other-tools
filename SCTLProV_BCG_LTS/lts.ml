@@ -33,11 +33,5 @@ let next s act =
     List.iter (fun (ls, lv, ns) -> 
         if match_action lv ls act then
             nexts := State_set.add ns !nexts
-      (* if only_tau then begin
-        if (not lv) then
-          nexts := State_label_set.add ns !nexts
-      end else begin
-        nexts := State_label_set.add ns !nexts
-      end *)
     ) lts_trans;
     !nexts

@@ -37,7 +37,7 @@ rule token =
   | "/\\"   {And}
   | "\\/"   {Or} 
   | nl      {Newline}
-  | "not"   {Not}
+  | "not"   {Parser.Not}
   | "Action"  {Action}
   | "Spec"    {Spec}
   | "(*"    {comment_ocaml lexbuf}
@@ -46,8 +46,3 @@ and comment_ocaml =
   | "*)"  {token lexbuf}
   | eof   {EOF}
   | _     {comment_ocaml lexbuf}
-
-(* EU(Tau, x, y, TRUE, TRUE, s)
-EU("G v1 v2", x, y, TRUE, TRUE, s)
-EU(T, x, y, TRUE, TRUE, s)
-EU(F, x, y, TRUE, TRUE, s) *)
