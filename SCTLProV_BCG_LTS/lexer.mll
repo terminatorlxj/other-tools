@@ -1,5 +1,6 @@
 {
   open Parser
+  open Lts
 }
 
 (* let integer = ['0'-'9']+ *)
@@ -16,11 +17,20 @@ rule token =
   | "EG"  {EG}
   | "AR"  {AR}
   | "EU"  {EU}
-  | "\""+.*"\"" as s  {Label (String.sub s 1 (String.length s - 2))}
-  | "Tau" {Tau}
-  | "T"   {T}
-  | "F"   {F}
+  | "\""+.*"\"" as s  {Action (Label (String.sub s 1 (String.length s - 2)))}
+  | "Tau" {Action Tau}
+  | "T"   {Action T}
+  | "F"   {Action F}
   | ","   {Comma}
+  | ";"   {Semicolon}
+  | "("   {LB1}
+  | ")"   {RB1}
+  | "{"   {LB3}
+  | "}"   {RB3}
+  | "!"   {Exclam}
+  | "&"   {Amper}
+  | "|"   {Vert}
+  | ":="  {Assign}
   | "TRUE"  {TRUE}
   | "FALSE" {FALSE}
   | iden as s  {Iden s}
@@ -28,6 +38,8 @@ rule token =
   | "\\/"   {Or} 
   | nl      {Newline}
   | "not"   {Not}
+  | "Action"  {Action}
+  | "Spec"    {Spec}
   | "(*"    {comment_ocaml lexbuf}
   | eof     {EOF}
 and comment_ocaml =

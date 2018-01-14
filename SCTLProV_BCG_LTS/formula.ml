@@ -1,8 +1,8 @@
 (* open Term *)
-open Ks
+open Bcg_interface
+open Lts
 
-type state = SVar of string | State of kstate
-type action =  Tau | T | F | Label of string
+type state = SVar of string | State of state
 type formula = 
 	  Top
 	| Bottom
@@ -19,7 +19,7 @@ type formula =
 
 let str_state s = 
 	match s with
-	| State ss -> str_kstate ss
+	| State ss -> str_state ss
 	| SVar sv -> sv
 
 let rec str_state_list sts = 

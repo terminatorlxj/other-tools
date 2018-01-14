@@ -1,0 +1,11 @@
+Action {
+    tau := Tau;
+    all := T;
+    none := F;
+    compose := tau | none;
+}
+
+Spec {
+    deadlock := EU (all, x, y, TRUE, AX (all, z, FALSE), s);
+    livelock := EU (all, x, y, TRUE, EG (tau, z, TRUE, y), s)
+}

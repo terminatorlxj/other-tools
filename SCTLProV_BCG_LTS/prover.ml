@@ -2,7 +2,7 @@ open Printf
 open Formula
 open Ks
 
-exception Deadlock of kstate
+(* exception Deadlock of kstate *)
 
 type continuation = 
       Basic of bool
@@ -83,26 +83,26 @@ let generate_AX_cont gamma levl x fml next contl contr =
     State_set.fold (fun elem b ->
         Cont (State_set.empty, levl^"1", Or (subst_s fml x (State elem), Neg (EG (SVar "y", Top, State elem))), b, contr, [], [])) next contl 
 
-let generate_EG_cont gamma level x fml s next contl contr =
+let generate_EG_cont gamma level act x fml s next contl contr =
 	let level1 = level^"1" in
     let nested = State_set.fold
         (fun elem b -> 
-            Cont (State_set.add s gamma, level, EG(x, fml, State elem), contl, add_false_to_cont level elem b, [], [])) next contr in
+            Cont (State_set.add s gamma, level, EG(act, x, fml, State elem), contl, add_false_to_cont level elem b, [], [])) next contr in
 	Cont (State_set.empty, level1, subst_s fml x (State s), nested, contr, [], [])
 
-let generate_AF_cont gamma levl x fml s next contl contr =
+let generate_AF_cont gamma levl act x fml s next contl contr =
 	let level1 = levl^"1" in 
     let nested = State_set.fold
         (fun elem b ->
-            Cont (State_set.add s gamma, levl, AF(x, fml, State elem), add_true_to_cont levl elem b, contr, [], [])) next contl in
+            Cont (State_set.add s gamma, levl, AF(act, x, fml, State elem), add_true_to_cont levl elem b, contr, [], [])) next contl in
 	Cont (State_set.empty, level1, subst_s fml x (State s), contl, nested, [], [])
 
-let generate_EU_cont gamma levl x y fml1 fml2 s next contl contr = 
+let generate_EU_cont gamma levl act x y fml1 fml2 s next contl contr = 
 	let levl1 = levl^"1"
 	and levl2 = levl^"2" in
 	let nested = State_set.fold
 			(fun elem b -> 
-					Cont (State_set.singleton s, levl, EU(x, y, fml1, fml2, State elem), contl, b, [], [])) next contr in
+					Cont (State_set.singleton s, levl, EU(act, x, y, fml1, fml2, State elem), contl, b, [], [])) next contr in
 		Cont (State_set.empty, levl2, subst_s fml2 y (State s), 
 		contl,
 		Cont (State_set.empty, levl1, subst_s fml1 x (State s),
@@ -111,12 +111,12 @@ let generate_EU_cont gamma levl x y fml1 fml2 s next contl contr =
 			[], []),
 		[], [])
 
-let generate_AR_cont gamma levl x y fml1 fml2 s next contl contr = 
+let generate_AR_cont gamma levl act x y fml1 fml2 s next contl contr = 
 	let levl1 = levl^"1"
 	and levl2 = levl^"2" in
 	let nested = State_set.fold
 		(fun elem b ->
-	Cont (State_set.singleton s, levl, AR (x, y, fml1, fml2, State elem), b, contr, [], [])) next contl in
+	Cont (State_set.singleton s, levl, AR (act, x, y, fml1, fml2, State elem), b, contr, [], [])) next contl in
 	Cont (State_set.empty, levl2, subst_s fml2 y (State s),
 	Cont (State_set.empty, levl1, subst_s fml1 x (State s), 
 		contl,
@@ -139,7 +139,7 @@ and prove_atomic s sl modl =
 	end
 	| _ -> printf "Unknown atomic predicate: %s\n" s; exit 1
 
-let rec prove cont modl deadlock ignore_label = 
+let rec prove cont modl = 
     match cont with 
     | Basic b -> b
     | Cont (gamma, levl, fml, contl, contr, ts, fs) ->
@@ -149,11 +149,11 @@ let rec prove cont modl deadlock ignore_label =
 		);
 		begin
 				match fml with
-				| Top -> prove contl modl deadlock ignore_label
-				| Bottom -> prove contr modl deadlock ignore_label
-				| Atomic (s, sl) -> if prove_atomic s sl modl then prove contl modl deadlock ignore_label else prove contr modl deadlock ignore_label
-				| Neg (Atomic (s, sl)) -> if prove_atomic s sl modl then prove contr modl deadlock ignore_label else prove contl modl deadlock ignore_label
-				| Neg fml1 -> prove (Cont (gamma, levl^"1", fml1, contr, contl, [], [])) modl deadlock ignore_label
+				| Top -> prove contl modl
+				| Bottom -> prove contr modl
+				| Atomic (s, sl) -> if prove_atomic s sl modl then prove contl modl else prove contr modl
+				| Neg (Atomic (s, sl)) -> if prove_atomic s sl modl then prove contr modl else prove contl modl
+				| Neg fml1 -> prove (Cont (gamma, levl^"1", fml1, contr, contl, [], [])) modl
 				| And (fml1, fml2) -> 
 						prove (Cont (State_set.empty, levl^"1", fml1, 
 														Cont (State_set.empty, levl^"2", fml2,
@@ -161,70 +161,70 @@ let rec prove cont modl deadlock ignore_label =
 																contr, 
 							[],[]), 
 														contr,
-						[],[])) modl deadlock ignore_label
+						[],[])) modl
 				| Or (fml1, fml2) -> 
 						prove (Cont (State_set.empty, levl^"1", fml1,
 														contl,
 														Cont (State_set.empty, levl^"2", fml2,
 																contl,
-																contr, [],[]),[],[])) modl deadlock ignore_label
-				| AX (x, fml1, State s) -> 
-						let next = next modl s ignore_label in
+																contr, [],[]),[],[])) modl
+				| AX (act, x, fml1, State s) -> 
+						let next = next s act in
 						if State_set.is_empty next && deadlock then
 							raise (Deadlock s)
 						else
-							prove (generate_AX_cont gamma levl x fml1 next contl contr) modl deadlock ignore_label
-				| EX (x, fml1, State s) -> 
-						let next = next modl s ignore_label in
+							prove (generate_AX_cont gamma levl x fml1 next contl contr) modl
+				| EX (act, x, fml1, State s) -> 
+						let next = next s act in
 						if State_set.is_empty next && deadlock then
 							raise (Deadlock s)
 						else
-							prove (generate_EX_cont gamma levl x fml1 next contl contr) modl deadlock ignore_label
-				| EG (x, fml1, State s) -> 
-						if (is_in_true_merge s levl modl) then prove contl modl deadlock ignore_label else
-						if (is_in_false_merge s levl modl) then prove contr modl deadlock ignore_label else 
+							prove (generate_EX_cont gamma levl x fml1 next contl contr) modl
+				| EG (act, x, fml1, State s) -> 
+						if (is_in_true_merge s levl modl) then prove contl modl else
+						if (is_in_false_merge s levl modl) then prove contr modl else 
 							if State_set.mem s gamma 
 							then  
-									prove contl modl deadlock ignore_label
+									prove contl modl
 							else
-									let next = next modl s ignore_label in
+									let next = next s act in
 									if State_set.is_empty next && deadlock then
 										raise (Deadlock s)
 									else 
-										prove (generate_EG_cont gamma levl x fml1 s next contl contr) modl deadlock ignore_label
-				| AF (x, fml1, State s) -> 
-						if is_in_true_merge s levl modl then prove contl modl deadlock ignore_label else
-						if is_in_false_merge s levl modl then prove contr modl deadlock ignore_label else
+										prove (generate_EG_cont gamma levl x fml1 s next contl contr) modl
+				| AF (act, x, fml1, State s) -> 
+						if is_in_true_merge s levl modl then prove contl modl else
+						if is_in_false_merge s levl modl then prove contr modl else
 						begin
 							if State_set.mem s gamma
 							then 
-								prove contr modl deadlock ignore_label
+								prove contr modl
 							else 
 								begin
-									let next = next modl s ignore_label in
+									let next = next s act in
 									if State_set.is_empty next && deadlock then
 										raise (Deadlock s)
 									else
-										prove (generate_AF_cont gamma levl x fml1 s next contl contr) modl deadlock ignore_label
+										prove (generate_AF_cont gamma levl x fml1 s next contl contr) modl
 								end
 						end
-				| EU (x, y, fml1, fml2, State s) -> 
+				| EU (act, x, y, fml1, fml2, State s) -> 
 					(
 						if State_set.is_empty gamma 
 						then clear_global_merge levl 
 						else add_to_global_merge gamma levl modl;
 						if in_global_merge s levl modl
 						then
-							prove contr modl deadlock ignore_label
+							prove contr modl
 						else
-							let next = next modl s ignore_label in
+							let next = next s act in
 							if State_set.is_empty next && deadlock then
 								raise (Deadlock s)
 							else
 								let new_next = State_set.diff next (get_merge levl) in
-								prove (generate_EU_cont gamma levl x y fml1 fml2 s new_next contl contr) modl deadlock ignore_label
+								prove (generate_EU_cont gamma levl x y fml1 fml2 s new_next contl contr) modl
 					) 
-				| AR (x, y, fml1, fml2, State s) ->
+				| AR (act, x, y, fml1, fml2, State s) ->
 					(
 						(if State_set.is_empty gamma
 						then clear_global_merge levl
@@ -233,18 +233,18 @@ let rec prove cont modl deadlock ignore_label =
 						);		
 						if in_global_merge s levl modl
 						then 
-							prove contl modl deadlock ignore_label
+							prove contl modl
 						else
-							let next = next modl s ignore_label in
+							let next = next s act in
 							if State_set.is_empty next && deadlock then
 								raise (Deadlock s)
 							else
-								prove (generate_AR_cont gamma levl x y fml1 fml2 s next contl contr) modl deadlock ignore_label
+								prove (generate_AR_cont gamma levl x y fml1 fml2 s next contl contr) modl
 					) 
 				| _ -> (print_endline ("Unable to prove: "^(fml_to_string fml)); raise Unable_to_prove)
 		end
 
-	let rec prove_model modl spec_lst deadlock ignore_label = 
+	let rec prove_model modl spec_lst = 
 		let rec prove_lst lst = 
 		match lst with
 		| [] -> ()
@@ -253,7 +253,7 @@ let rec prove cont modl deadlock ignore_label =
 			print_endline (fml_to_string (nnf_fml));
 			pre_process_merges (select_sub_fmls (sub_fmls nnf_fml "1"));
 			begin try
-				let b = (prove (Cont (State_set.empty, "1", Formula.subst_s (nnf_fml) (SVar "ini") (State modl.init), Basic true, Basic false, [], [])) modl deadlock ignore_label) in
+				let b = (prove (Cont (State_set.empty, "1", Formula.subst_s (nnf_fml) (SVar "ini") (State modl.init), Basic true, Basic false, [], [])) modl) in
 				print_endline (s ^ ": " ^ (string_of_bool b))
 			with Deadlock s ->
 				print_endline "deadlock detected!!!"	
