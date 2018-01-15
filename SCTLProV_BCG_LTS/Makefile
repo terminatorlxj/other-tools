@@ -28,3 +28,6 @@ clean:
 	rm -f test
 	rm -f sctlbcg
 	rm -f evaluator
+	rm -f lexer.ml
+	rm -f parser.ml
+	rm -f parser.mli

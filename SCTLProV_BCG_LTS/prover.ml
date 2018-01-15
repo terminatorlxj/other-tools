@@ -3,7 +3,9 @@ open Formula
 open Bcg_interface
 open Lts
 
-(* exception Deadlock of kstate *)
+exception Deadlock of Bcg_interface.state
+
+let deadlock = ref false
 
 type continuation = 
       Basic of bool
@@ -169,15 +171,15 @@ let rec prove cont modl =
 																contr, [],[]),[],[])) modl
 				| AX (act, x, fml1, State s) -> 
 						let next = next s act in
-						(* if State_set.is_empty next && deadlock then
+						if State_set.is_empty next && !deadlock then
 							raise (Deadlock s)
-						else *)
+						else
 							prove (generate_AX_cont gamma levl x fml1 next contl contr) modl
 				| EX (act, x, fml1, State s) -> 
 						let next = next s act in
-						(* if State_set.is_empty next && deadlock then
+						if State_set.is_empty next && !deadlock then
 							raise (Deadlock s)
-						else *)
+						else
 							prove (generate_EX_cont gamma levl x fml1 next contl contr) modl
 				| EG (act, x, fml1, State s) -> 
 						if (is_in_true_merge s levl modl) then prove contl modl else
@@ -187,9 +189,9 @@ let rec prove cont modl =
 									prove contl modl
 							else
 									let next = next s act in
-									(* if State_set.is_empty next && deadlock then
+									if State_set.is_empty next && !deadlock then
 										raise (Deadlock s)
-									else  *)
+									else 
 										prove (generate_EG_cont gamma levl act x fml1 s next contl contr) modl
 				| AF (act, x, fml1, State s) -> 
 						if is_in_true_merge s levl modl then prove contl modl else
@@ -201,9 +203,9 @@ let rec prove cont modl =
 							else 
 								begin
 									let next = next s act in
-									(* if State_set.is_empty next && deadlock then
+									if State_set.is_empty next && !deadlock then
 										raise (Deadlock s)
-									else *)
+									else
 										prove (generate_AF_cont gamma levl act x fml1 s next contl contr) modl
 								end
 						end
@@ -217,9 +219,9 @@ let rec prove cont modl =
 							prove contr modl
 						else
 							let next = next s act in
-							(* if State_set.is_empty next && deadlock then
+							if State_set.is_empty next && !deadlock then
 								raise (Deadlock s)
-							else *)
+							else
 								let new_next = State_set.diff next (get_merge levl) in
 								prove (generate_EU_cont gamma levl act x y fml1 fml2 s new_next contl contr) modl
 					) 
@@ -235,10 +237,11 @@ let rec prove cont modl =
 							prove contl modl
 						else
 							let next = next s act in
-							(* if State_set.is_empty next && deadlock then
+							if State_set.is_empty next && !deadlock then
 								raise (Deadlock s)
-							else *)
-								prove (generate_AR_cont gamma levl act x y fml1 fml2 s next contl contr) modl
+							else
+								let new_next = State_set.diff next (get_merge levl) in
+								prove (generate_AR_cont gamma levl act x y fml1 fml2 s new_next contl contr) modl
 					) 
 				| _ -> (print_endline ("Unable to prove: "^(fml_to_string fml)); raise Unable_to_prove)
 		end

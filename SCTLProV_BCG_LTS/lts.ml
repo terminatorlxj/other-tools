@@ -40,8 +40,14 @@ let create_lts filename = {init = Bcg_interface.read_bcg filename}
 let next s act = 
     let nexts = ref State_set.empty in
     let lts_trans = Bcg_interface.trans s in
-    List.iter (fun (ls, lv, ns) -> 
-        if match_action lv ls act then
+    if act = T then begin
+        List.iter (fun (ls, lv, ns) -> 
             nexts := State_set.add ns !nexts
-    ) lts_trans;
+        ) lts_trans
+    end else begin
+        List.iter (fun (ls, lv, ns) -> 
+            if match_action lv ls act then
+                nexts := State_set.add ns !nexts
+        ) lts_trans
+    end;
     !nexts
