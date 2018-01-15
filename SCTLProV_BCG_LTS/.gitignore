@@ -3,3 +3,6 @@
 *.a
 *.cmxa
 sctlbcg
+lexer.ml
+parser.mli
+parser.ml

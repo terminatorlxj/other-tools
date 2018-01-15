@@ -8,7 +8,6 @@ Action {
 }
 
 Spec {
-    (*deadlock := EU (all, x, y, TRUE, AX (all, z, FALSE, y), s);*)
-    deadlock2 := EU (all, x, y, TRUE, FALSE, s);
+    deadlock := EU (all, x, y, TRUE, FALSE, s);
     (*livelock := EU (all, x, y, TRUE, EG (tau, z, TRUE, y), s);*)
 }
