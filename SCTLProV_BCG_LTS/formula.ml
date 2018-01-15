@@ -2,7 +2,7 @@
 open Bcg_interface
 open Lts
 
-type state = SVar of string | State of state
+type state = SVar of string | State of (Bcg_interface.state)
 type formula = 
 	  Top
 	| Bottom
@@ -19,7 +19,7 @@ type formula =
 
 let str_state s = 
 	match s with
-	| State ss -> str_state ss
+	| State ss -> Bcg_interface.str_state ss
 	| SVar sv -> sv
 
 let rec str_state_list sts = 
@@ -37,12 +37,12 @@ let rec subst_s fml s1 s2 =
 	| Neg fml1 -> Neg (subst_s fml1 s1 s2)
 	| And (fml1, fml2) -> And (subst_s fml1 s1 s2, subst_s fml2 s1 s2)
 	| Or (fml1, fml2) -> Or (subst_s fml1 s1 s2, subst_s fml2 s1 s2)
-	| AX (s, fml1, s') -> AX (s, subst_s fml1 s1 s2, (if compare_state s1 s' = 0 then s2 else s'))
-	| EX (s, fml1, s') -> EX (s, subst_s fml1 s1 s2, (if compare_state s1 s' = 0 then s2 else s'))
-	| AF (s, fml1, s') -> AF (s, subst_s fml1 s1 s2, (if compare_state s1 s' = 0 then s2 else s'))
-	| EG (s, fml1, s') -> EG (s, subst_s fml1 s1 s2, (if compare_state s1 s' = 0 then s2 else s'))
-	| AR (s, s', fml1, fml2, s'') -> AR (s, s', subst_s fml1 s1 s2, subst_s fml2 s1 s2, (if compare_state s1 s'' = 0 then s2 else s''))
-	| EU (s, s', fml1, fml2, s'') -> EU (s, s', subst_s fml1 s1 s2, subst_s fml2 s1 s2, (if compare_state s1 s'' = 0 then s2 else s''))
+	| AX (act, s, fml1, s') -> AX (act, s, subst_s fml1 s1 s2, (if compare_state s1 s' = 0 then s2 else s'))
+	| EX (act, s, fml1, s') -> EX (act, s, subst_s fml1 s1 s2, (if compare_state s1 s' = 0 then s2 else s'))
+	| AF (act, s, fml1, s') -> AF (act, s, subst_s fml1 s1 s2, (if compare_state s1 s' = 0 then s2 else s'))
+	| EG (act, s, fml1, s') -> EG (act, s, subst_s fml1 s1 s2, (if compare_state s1 s' = 0 then s2 else s'))
+	| AR (act, s, s', fml1, fml2, s'') -> AR (act, s, s', subst_s fml1 s1 s2, subst_s fml2 s1 s2, (if compare_state s1 s'' = 0 then s2 else s''))
+	| EU (act, s, s', fml1, fml2, s'') -> EU (act, s, s', subst_s fml1 s1 s2, subst_s fml2 s1 s2, (if compare_state s1 s'' = 0 then s2 else s''))
 and subst_s_in_list sl s1 s2 = 
 	match sl with
 	| [] -> sl
@@ -55,12 +55,12 @@ let rec nnf fml =
 	| Neg fml1 -> neg (nnf fml1)
 	| And (fml1, fml2) -> And (nnf fml1, nnf fml2)
 	| Or (fml1, fml2) -> Or (nnf fml1, nnf fml2)
-	| AX (s, fml1, s') -> AX (s, nnf fml1, s')
-	| EX (s, fml1, s') -> EX (s, nnf fml1, s')
-	| AF (s, fml1, s') -> AF (s, nnf fml1, s')
-	| EG (s, fml1, s') -> EG (s, nnf fml1, s')
-	| AR (s, s', fml1, fml2, s'') -> AR (s, s', nnf fml1, nnf fml2, s'')
-	| EU (s, s', fml1, fml2, s'') -> EU (s, s', nnf fml1, nnf fml2, s'')
+	| AX (act, s, fml1, s') -> AX (act, s, nnf fml1, s')
+	| EX (act, s, fml1, s') -> EX (act, s, nnf fml1, s')
+	| AF (act, s, fml1, s') -> AF (act, s, nnf fml1, s')
+	| EG (act, s, fml1, s') -> EG (act, s, nnf fml1, s')
+	| AR (act, s, s', fml1, fml2, s'') -> AR (act, s, s', nnf fml1, nnf fml2, s'')
+	| EU (act, s, s', fml1, fml2, s'') -> EU (act, s, s', nnf fml1, nnf fml2, s'')
 and neg fml = 
 	match fml with
 	| Top -> Bottom
@@ -70,12 +70,12 @@ and neg fml =
 	| Neg fml1 -> fml1
 	| And (fml1, fml2) -> Or (neg fml1, neg fml2)
 	| Or (fml1, fml2) -> And (neg fml1, neg fml2)
-	| AX (s, fml1, s') -> EX (s, neg fml1, s')
-	| EX (s, fml1, s') -> AX (s, neg fml1, s')
-	| AF (s, fml1, s') -> EG (s, neg fml1, s')
-	| EG (s, fml1, s') -> AF (s, neg fml1, s')
-	| AR (s, s', fml1, fml2, s'') -> EU (s, s', neg fml1, neg fml2, s'')
-	| EU (s, s', fml1, fml2, s'') -> AR (s, s', neg fml1, neg fml2, s'')
+	| AX (act, s, fml1, s') -> EX (act, s, neg fml1, s')
+	| EX (act, s, fml1, s') -> AX (act, s, neg fml1, s')
+	| AF (act, s, fml1, s') -> EG (act, s, neg fml1, s')
+	| EG (act, s, fml1, s') -> AF (act, s, neg fml1, s')
+	| AR (act, s, s', fml1, fml2, s'') -> EU (act, s, s', neg fml1, neg fml2, s'')
+	| EU (act, s, s', fml1, fml2, s'') -> AR (act, s, s', neg fml1, neg fml2, s'')
 	
 (* formula to string *)
 let rec fml_to_string fml = 
@@ -86,12 +86,12 @@ let rec fml_to_string fml =
 	| Neg fml1 -> "(not " ^ (fml_to_string fml1) ^ ")"
 	| And (fml1, fml2) -> (fml_to_string fml1) ^ "/\\" ^ (fml_to_string fml2)
 	| Or (fml1, fml2) -> (fml_to_string fml1) ^ "\\/" ^ (fml_to_string fml2)
-	| AX (s, fml1, s') -> "AX(" ^ (str_state s) ^ ", (" ^ (fml_to_string fml1) ^ "), " ^ (str_state s') ^ ")"
-	| EX (s, fml1, s') -> "EX(" ^ (str_state s) ^ ", (" ^ (fml_to_string fml1) ^ "), " ^ (str_state s') ^ ")"
-	| AF (s, fml1, s') -> "AF(" ^ (str_state s) ^ ", (" ^ (fml_to_string fml1) ^ "), " ^ (str_state s') ^ ")"
-	| EG (s, fml1, s') -> "EG(" ^ (str_state s) ^ ", (" ^ (fml_to_string fml1) ^ "), " ^ (str_state s') ^ ")"
-	| AR (s, s', fml1, fml2, s'') -> "AR(" ^ (str_state s) ^ ", " ^ (str_state s') ^ ", (" ^ (fml_to_string fml1) ^ "), (" ^ (fml_to_string fml2) ^ "), " ^ (str_state s'') ^ ")"
-	| EU (s, s', fml1, fml2, s'') -> "EU(" ^ (str_state s) ^ ", " ^ (str_state s') ^ ", (" ^ (fml_to_string fml1) ^ "), (" ^ (fml_to_string fml2) ^ "), " ^ (str_state s'') ^ ")"
+	| AX (act, s, fml1, s') -> "AX(" ^ (str_action act) ^ ", " ^ (s) ^ ", (" ^ (fml_to_string fml1) ^ "), " ^ (str_state s') ^ ")"
+	| EX (act, s, fml1, s') -> "EX(" ^ (str_action act) ^ ", " ^ (s) ^ ", (" ^ (fml_to_string fml1) ^ "), " ^ (str_state s') ^ ")"
+	| AF (act, s, fml1, s') -> "AF(" ^ (str_action act) ^ ", " ^ (s) ^ ", (" ^ (fml_to_string fml1) ^ "), " ^ (str_state s') ^ ")"
+	| EG (act, s, fml1, s') -> "EG(" ^ (str_action act) ^ ", " ^ (s) ^ ", (" ^ (fml_to_string fml1) ^ "), " ^ (str_state s') ^ ")"
+	| AR (act, s, s', fml1, fml2, s'') -> "AR(" ^ (str_action act) ^ ", " ^ (s) ^ ", " ^ (s') ^ ", (" ^ (fml_to_string fml1) ^ "), (" ^ (fml_to_string fml2) ^ "), " ^ (str_state s'') ^ ")"
+	| EU (act, s, s', fml1, fml2, s'') -> "EU(" ^ (str_action act) ^ ", " ^ (s) ^ ", " ^ (s') ^ ", (" ^ (fml_to_string fml1) ^ "), (" ^ (fml_to_string fml2) ^ "), " ^ (str_state s'') ^ ")"
 
 
 let rec sub_fmls fml levl =
@@ -102,12 +102,12 @@ let rec sub_fmls fml levl =
 	match fml with
 	| And (fml1, fml2) -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); add_tbl fml_levl_tbl (sub_fmls fml2 (levl^"2")); fml_levl_tbl
 	| Or (fml1, fml2) -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); add_tbl fml_levl_tbl (sub_fmls fml2 (levl^"2")); fml_levl_tbl
-	| AX (s, fml1, s') -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); fml_levl_tbl
-	| EX (s, fml1, s') -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); fml_levl_tbl
-	| AF (s, fml1, s') -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); fml_levl_tbl
-	| EG (s, fml1, s') -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); fml_levl_tbl
-	| AR (s, s', fml1, fml2, s'') -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); add_tbl fml_levl_tbl (sub_fmls fml2 (levl^"2")); fml_levl_tbl
-	| EU (s, s', fml1, fml2, s'') -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); add_tbl fml_levl_tbl (sub_fmls fml2 (levl^"2")); fml_levl_tbl
+	| AX (act, s, fml1, s') -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); fml_levl_tbl
+	| EX (act, s, fml1, s') -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); fml_levl_tbl
+	| AF (act, s, fml1, s') -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); fml_levl_tbl
+	| EG (act, s, fml1, s') -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); fml_levl_tbl
+	| AR (act, s, s', fml1, fml2, s'') -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); add_tbl fml_levl_tbl (sub_fmls fml2 (levl^"2")); fml_levl_tbl
+	| EU (act, s, s', fml1, fml2, s'') -> add_tbl fml_levl_tbl (sub_fmls fml1 (levl^"1")); add_tbl fml_levl_tbl (sub_fmls fml2 (levl^"2")); fml_levl_tbl
 	| _ -> fml_levl_tbl
 
 let select_sub_fmls fml_levl_tbl = 

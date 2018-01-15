@@ -42,7 +42,7 @@ CAMLprim value read_bcg(value v) {
 CAMLprim value trans(value v) {
     CAMLparam1(v);
     CAMLlocal5(clist, cons, ctuple, label_number, s2);
-    CAMLlocal2(label_visible, label_str);
+    CAMLlocal1(label_visible);
     clist = Val_emptylist;
     bcg_s1 = Int_val(v);
     BCG_OT_ITERATE_P_LN(bcg_graph, bcg_s1, bcg_label_number, bcg_s2)
@@ -52,7 +52,7 @@ CAMLprim value trans(value v) {
         s2 = bcg_s2;
         // ls = bcg_label_string;
         label_visible = BCG_OT_LABEL_VISIBLE(bcg_graph, bcg_label_number);
-        label_str = BCG_OT_LABEL_GATE (bcg_graph, bcg_label_number);
+        char* label_str = BCG_OT_LABEL_GATE (bcg_graph, bcg_label_number);
         // Store_field(ctuple, 0, Val_int(label_number));
         Store_field(ctuple, 0, caml_copy_string(label_str));
         Store_field(ctuple, 1, Val_bool(label_visible));

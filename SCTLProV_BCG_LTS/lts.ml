@@ -7,6 +7,16 @@ type action =
 	| Both of action * action 
     | Either of action * action
 
+let rec str_action act = 
+    match act with
+    | Tau -> "Tau"
+    | T -> "T"
+    | F -> "F"
+    | Label str -> "\""^str^"\""
+    | Not act -> "!("^(str_action act)^")"
+    | Both (act1, act2) -> "("^(str_action act1)^")&("^(str_action act2)^")"
+    | Either (act1, act2) -> "("^(str_action act1)^")|("^(str_action act2)^")"
+
 module State_key = 
 struct
     type t = Bcg_interface.state
