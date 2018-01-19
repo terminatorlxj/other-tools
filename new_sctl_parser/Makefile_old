@@ -1,0 +1,16 @@
+
+# PARSING_DIR=./parsing
+
+all:
+	ocamlc -c location.ml
+	ocamlc -c path.ml
+	ocamlc -c types.ml
+	ocamlc -c constants.ml
+	ocamlc -c pterm.ml
+	ocamlc -c pformula.ml
+	ocamlc -c parsetree.ml
+	menhir --infer --explain parser.mly
+	ocamllex lexer.mll
+
+clean:
+	rm -f *.cm[ioxa]

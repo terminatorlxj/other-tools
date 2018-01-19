@@ -1,0 +1,47 @@
+OASISFormat: 0.4
+Name:        SCTLProV
+Version:     2.1
+Synopsis:    Tool that verifies CTLP properties of finite state models.
+Authors:     Jian Liu
+License:     LGPL-3.0
+Plugins:     DevFiles (0.4)
+PostBuildCommand: mv main.native sctl
+AlphaFeatures: ocamlbuild_more_args
+XOCamlbuildExtraArgs:
+  -use-menhir
+  -yaccflag --explain
+
+Executable sctl
+  Path:       src
+  BuildTools: ocamlbuild
+  BuildTools+: menhir
+  MainIs:     main.ml
+  CompiledObject: best
+  Install: false
+  BuildDepends: parsing, typing, proving
+
+Library parsing
+  Pack: true
+  Path: src/parsing
+  BuildTools: ocamlbuild
+  FindlibName: parsing
+  CompiledObject: best
+  Modules: Lexer, Parser, Location, Parsetree, Pformula, Ppath, Pterm, Ptype
+
+Library typing
+  Pack: true
+  Path: src/typing
+  BuildTools: ocamlbuild
+  FindlibName: typing
+  CompiledObject: best
+  Modules: 
+  BuildDepends: parsing
+
+Library proving
+  Pack: true
+  Path: src/proving
+  BuildTools: ocamlbuild
+  FindlibName: proving
+  CompiledObject: best
+  Modules:
+  BuildDepends: parsing, typing
