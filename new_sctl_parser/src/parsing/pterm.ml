@@ -14,12 +14,12 @@ and pexpr_descr =
     | Pexpr_let of ppat * pexpr
     | Pexpr_apply of pexpr * (pexpr list)
     | Pexpr_tuple of pexpr list
-    | Pexpr_constr of string * pexpr list
+    | Pexpr_constr of Path.t * pexpr
     | Pexpr_record of (string * pexpr) list
     | Pexpr_with of pexpr * ((string * pexpr) list)
     | Pexpr_list of pexpr list
     | Pexpr_array of pexpr list
-    | Pexpr_sequence of pexpr * pexpr
+    | Pexpr_sequence of pexpr list
     | Pexpr_if of pexpr * pexpr * (pexpr option)
     | Pexpr_while of pexpr * pexpr
     | Pexpr_for of string * pexpr * pexpr * pexpr

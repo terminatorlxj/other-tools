@@ -9,6 +9,8 @@ and ptype_descr =
     | PTapply of Ppath.t * (t list)
     | PTarrow of ptype * t
     | PTtuple of ptype list
+    | PTlist of ptype
+    | PTarray of ptype
     | PTint
     | PTbool
     | PTstring
@@ -17,11 +19,12 @@ and ptype_descr =
 and ptype_decl = {
         params: string list;
         arity: int;
-        kind: ptype_decl_kind;
+        kind: ptype_kind;
         ptype_decl_loc: Location.t;
     }
-and ptype_decl_kind = 
-    | PTKvariant of Ppath.t * ptype
+and ptype_kind = 
+    | PTKalias of ptype
+    | PTKvariant of (string * ptype) list
     | PTKrecord of (string * ptype) list
 
 (* let rec str_type t = 
