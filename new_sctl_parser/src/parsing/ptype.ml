@@ -16,16 +16,6 @@ and ptype_descr =
     | PTstring
     | PTfloat
     | PTunit
-and ptype_decl = {
-        params: string list;
-        arity: int;
-        kind: ptype_kind;
-        ptype_decl_loc: Location.t;
-    }
-and ptype_kind = 
-    | PTKalias of ptype
-    | PTKvariant of (string * ptype) list
-    | PTKrecord of (string * ptype) list
 
 (* let rec str_type t = 
     match t.type_descr with

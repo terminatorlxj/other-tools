@@ -14,15 +14,17 @@ and pdefinition =
     | Pdef_type of string * Ptype.ptype_decl
     | Pdef_value of ppat * (Ptype.ptype option) * pexpr
     | Pdef_function of string * (Ptype.ptype option) * pfunction_decl
-(* and ptype_decl = 
-    {
-        ptype_params: string list;
-        ptype_kind: ptype_kind;
-        ptype_loc: Location.t;
+and ptype_decl = {
+        params: string list;
+        arity: int;
+        kind: ptype_kind;
+        ptype_decl_loc: Location.t;
     }
 and ptype_kind = 
-    | PTvariant of (string * (Types.t list)) list
-    | PTrecord of (string * Types.t) list *)
+    | PTKalias of ptype
+    | PTKvariant of (string * ptype) list
+    | PTKrecord of (string * ptype) list
+
 and pfunction_decl = 
     {
         pfunction_params: ppat list;
