@@ -25,7 +25,7 @@ and pexpr_descr =
     | Pexpr_for of string * pexpr * pexpr * pexpr
     | Pexpr_match of pexpr * ((ppat * pexpr) list)
     | Pexpr_assign of pexpr * pexpr
-    | Pexpr_constraint of pexpr * Types.t 
+    | Pexpr_constraint of pexpr * Ptype.ptype
 and ppat = 
     {
         ppat_descr: ppat_descr;
@@ -33,14 +33,14 @@ and ppat =
     }
 and ppat_descr = 
     | Ppat_iden of string
-    | Ppat_const of Constants.t
+    | Ppat_const of pconst
     | Ppat_tuple of ppat list
-    (* | Ppat_record of (string * ppat) list *)
-    | Ppat_constr of string * (ppat list)
+    | Ppat_record of (string * ppat) list
+    | Ppat_constr of Path.t * (ppat list)
     | Ppat_list of ppat list
     | Ppat_listcons of ppat * ppat
     | Ppat_array of ppat list
-    | Ppat_or of ppat * ppat
+    (* | Ppat_or of ppat * ppat *)
     | Ppat_wildcard
 
 let make_pexpr ped loc = 

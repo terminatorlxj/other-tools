@@ -45,3 +45,11 @@ Library proving
   CompiledObject: best
   Modules:
   BuildDepends: parsing, typing
+
+Library utils
+  Pack: true
+  Path: src/utils
+  BuildTools: ocamlbuild
+  FindlibName: utils
+  CompiledObject: best
+  Modules: Lists

@@ -6,8 +6,8 @@ type ptype =
     }
 and ptype_descr = 
     (* | PTname of Ppath.t *)
-    | PTapply of Ppath.t * (t list)
-    | PTarrow of ptype * t
+    | PTapply of Path.t * (ptype list)
+    | PTarrow of ptype * ptype
     | PTtuple of ptype list
     | PTlist of ptype
     | PTarray of ptype
