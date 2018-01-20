@@ -5,12 +5,13 @@ type type_expr =
     | Tint
     | Tbool
     | Tunit
+    | Tfloat
     | Tstring
     | Tlist of type_expr
     | Tarray of type_expr
     | Tarrow of type_expr * type_expr
     | Ttuple of type_expr list
-    | Tapply of Path.t * type_expr
+    | Tapply of Path.t * (type_expr list)
 and type_decl = {
         params: string list;
         arity: int;

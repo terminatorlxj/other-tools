@@ -34,8 +34,8 @@ Library typing
   BuildTools: ocamlbuild
   FindlibName: typing
   CompiledObject: best
-  Modules: 
-  BuildDepends: parsing
+  Modules: Term, Type, Typechecking
+  BuildDepends: parsing, utils
 
 Library proving
   Pack: true
