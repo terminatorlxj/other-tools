@@ -13,26 +13,6 @@ type type_expr =
     | Ttuple of type_expr list
     | Tapply of Path.t * (type_expr list)
 
-(*
-type ptype = 
-    {
-        ptype_descr: ptype_descr;
-        ptype_loc: Location.t;
-    }
-and ptype_descr = 
-    (* | PTname of Ppath.t *)
-    | PTapply of Path.t * (t list)
-    | PTarrow of ptype * t
-    | PTtuple of ptype list
-    | PTlist of ptype
-    | PTarray of ptype
-    | PTint
-    | PTbool
-    | PTstring
-    | PTfloat
-    | PTunit
-*)
-
 let rec make_type pt = 
     match pt.ptype_descr with
     | PTapply (path, pt) -> Tapply (path, make_type pt)

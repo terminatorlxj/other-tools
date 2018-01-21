@@ -29,7 +29,7 @@ let make_modul tmodul runtime =
         functions = functions;
         specs = specs;
     }
-
+let make_runtime tmodules dep = 
 
 type ctx = (string * value) list
 

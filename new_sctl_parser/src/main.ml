@@ -31,8 +31,7 @@ let _ =
         pmodule
         ) !inputfiles in
       let dep = Dep.make_dep pmodules in
-      Typechecker.check_modules pmodules;
-      (* prove pmodules *)
+      Typing.check_tmodules (Typing.make_tmodules pmodules) dep
     | false ->
       let pmodules = List.map (fun inputfile -> 
       let pmodule = Parser.program Lexer.token (Lexing.from_channel (open_in inputfile)) in
@@ -46,6 +45,7 @@ let _ =
       end;
       pmodule
       ) !inputfiles in
-      Typechecker.check_modules pmodules;
-      Prover.prove_modules pmodules
+      let dep = Dep.make_dep pmodules in
+      let tmodules = Typing.check_tmodules (Typing.make_tmodules pmodules) dep in
+      Prover.prove_runtime (Evaluation.make_runtime tmodules) dep
   end

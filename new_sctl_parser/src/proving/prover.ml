@@ -1,2 +1,2 @@
 
-let prove_modules pmodules = ()
+let prove_runtime runtime dep = ()

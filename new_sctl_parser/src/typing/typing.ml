@@ -69,4 +69,4 @@ let make_tmodule pmodule =
     }
 
 (*type checking on the top level of the input files*)    
-let type_check pmodules dep = 
+let check_tmodules tmodules dep = 
