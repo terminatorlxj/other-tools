@@ -1,10 +1,17 @@
 open Pterm
 
+(* type error =
+  | Match_value_error of pat * value
+
+exception Error of error *)
+
+
 type const = 
     Const_int of int
   | Const_bool of bool
   | Const_float of float
   | Const_string of string
+  | Const_unit
 type expr = 
   {
       expr_descr: expr_descr;
@@ -17,7 +24,7 @@ and expr_descr =
   | Expr_let of pat * expr
   | Expr_apply of expr * (expr list)
   | Expr_tuple of expr list
-  | Expr_constr of string * expr list
+  | Expr_variant of Path.t * expr list
   | Expr_record of (string * expr) list
   | Expr_with of expr * ((string * expr) list)
   | Expr_list of expr list
@@ -28,7 +35,7 @@ and expr_descr =
   | Expr_for of string * expr * expr * expr
   | Expr_match of expr * ((pat * expr) list)
   | Expr_assign of expr * expr
-  | Expr_constraint of expr * Types.t 
+  (* | Expr_constraint of expr * Types.t  *)
 and pat = 
   {
       pat_descr: pat_descr;
@@ -40,7 +47,7 @@ and pat_descr =
   | Pat_const of const
   | Pat_tuple of pat list
   | Pat_record of (string * pat) list
-  | Pat_constr of Path.t * (pat list)
+  | Pat_variant of Path.t * (pat list)
   | Pat_list of pat list
   | Pat_listcons of pat * pat
   | Pat_array of pat list
@@ -59,7 +66,7 @@ let rec make_expr pexpr =
     | Pexpr_tuple pel -> 
         let el = List.map (fun pe -> make_expr pe) pel in
         Expr_tuple el, Type.Ttuple (List.map (fun e -> e.expr_type) el)
-    | Pexpr_constr (path, pe) -> Expr_constr (path, make_expr pe), Type.new_type_var ()
+    | Pexpr_variant (path, pe) -> Expr_variant (path, make_expr pe), Type.new_type_var ()
     | Pexpr_record (str_pe_list) -> Expr_record (List.map (fun (str,pe) -> str, make_expr pe) str_pe_list), Type.new_type_var ()
     | Pexpr_with (pe, str_pel) -> 
       let e = make_expr pe in
@@ -94,7 +101,11 @@ let rec make_expr pexpr =
       let e1 = make_expr pe1 in
       Expr_match (e1, List.map (fun (ppat,pe) -> make_pat ppat, make_expr pe) ppat_pel), e1.expr_type
     | Pexpr_assign (pe1, pe2) -> Expr_assign (make_expr pe1, make_expr pe2), Type.Tunit
-    | Pexpr_constraint (pe, pt) -> Expr_constraint (make_expr pe, Type.make_type pt)
+    | Pexpr_constraint (pe, pt) -> 
+      let e = make_expr pe in
+      e.expr_type <- (Type.make_type pt);
+      e
+      (* Expr_constraint (make_expr pe, Type.make_type pt) *)
     in
     {expr_descr = ed; expr_type = et; expr_loc = pexpr.pexpr_loc}
 and make_pat ppat = 
@@ -108,7 +119,7 @@ and make_pat ppat =
     let patl = List.map (fun ppat -> make_pat ppat) ppatl in
     Pat_tuple patl, Type.Ttuple (List.map (fun pat -> pat.pat_type) patl)
   | Ppat_record str_ppatl -> Pat_record (List.map (fun (s,ppat) -> s, make_pat ppat) str_ppatl), Type.new_type_var ()
-  | Ppat_constr (path, ppatl) -> Pat_constr (path, List.map (fun ppat -> make_pat ppat) ppatl), Type.new_type_var ()
+  | Ppat_variant (path, ppatl) -> Pat_variant (path, List.map (fun ppat -> make_pat ppat) ppatl), Type.new_type_var ()
   | Ppat_list ppatl -> 
     let patl = List.map (fun ppat -> make_pat ppat) ppatl in
     if patl = [] then
@@ -139,3 +150,65 @@ let make_ppat ppatd loc =
       ppat_descr = ppatd;
       ppat_loc = loc;
   } *)
+type value =
+  | Vunit
+  | Vint of int
+  | Vbool of bool
+  | Vfloat of float
+  | Vstring of string
+  | Vlist of value list
+  | Varray of value array
+  | Vtuple of value list
+  | Vrecord of (string * value) list
+  | Vvariant of Path.t * (value list)
+
+exception Matching_value_error of pat * value
+
+let rec match_value pat value = 
+  let matching = ref [] in
+  begin match pat,value with
+  | Pat_iden s, _ -> matching := (s,value)::!matching
+  | Pat_const (Const_int i), Vint j -> 
+    if i<>j then
+      raise (Matching_value_error (pat, value))
+  | Pat_const (Const_float f1), Vfloat f2 -> 
+    if f1 <> f2 then
+      raise (Matching_value_error (pat, value))
+  | Pat_const (Const_string s1), Vstring s2 ->
+    if s1 <> s2 then
+      raise (Matching_value_error (pat, value))
+  | Pat_const (Const_unit), Vunit -> ()
+  | Pat_tuple patl, Vtuple vall -> 
+    List.iter2 (fun (pat, val) -> 
+      let tmp_matching = match_value pat val in
+      matching := tmp_matching @ !matching
+    ) patl vall
+  | Pat_record spatl, Vrecord svl ->
+    begin try
+      List.iter (fun (s, pat) -> 
+        let val = Pairs.get_value svl s in
+        matching := (match_value pat val) @ !matching
+      ) spatl
+    with Pairs.Key_not_found -> 
+      raise (Matching_value_error (pat, value))
+    end
+  | Pat_variant (path1, patl), Vvariant (path2, vall) ->
+    if path1 <> path2 then
+      raise (Match_value_error (pat, value))
+    else
+      List.iter2 (fun pat val -> 
+        matching := (match_value pat val) @ !matching
+      ) patl vall
+  | Pat_list patl, Vlist vall ->
+    List.iter2 (fun pat val -> 
+      matching := (match_value pat val) @ !matching
+    ) patl vall
+  | Pat_listcons (pat1, pat2), Vlist (val :: vall) ->
+    matching := (match_value pat1 val) @ (match_value pat2 (Vlist vall)) @ !matching
+  | Pat_array patl, Varray vala ->
+    List.iter2 (fun pat val -> 
+      matching := (match_value pat val) @ !matching
+    ) patl (Array.to_list vala)
+  | Pat_wildcard, _ -> ()
+  end;
+  !matching

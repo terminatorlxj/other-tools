@@ -30,6 +30,7 @@ let _ =
         end;
         pmodule
         ) !inputfiles in
+      let dep = Dep.make_dep pmodules in
       Typechecker.check_modules pmodules;
       (* prove pmodules *)
     | false ->

@@ -31,16 +31,3 @@ and pfunction_decl =
         pfunction_body: pexpr;
         pfunction_loc: Location.t
     }
-
-(* type model = 
-    {
-        transitions: ppat * ptrans_def;
-        fairness: pfml list;
-        atomics: (string, (string list)*pexpr) Hashtbl.t;
-        specs: (string * pfml) list;
-    }
-and ptrans_def = 
-    | Ptrans_case of (pexpr * pexpr) list
-    | Ptrans_plain of pexpr
-
-type parse_unit = pmodule * (pkripke option) *)
