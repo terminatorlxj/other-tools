@@ -24,7 +24,7 @@ and expr_descr =
   | Expr_let of pat * expr
   | Expr_apply of expr * (expr list)
   | Expr_tuple of expr list
-  | Expr_variant of Path.t * expr list
+  | Expr_variant of Path.t * expr
   | Expr_record of (string * expr) list
   | Expr_with of expr * ((string * expr) list)
   | Expr_list of expr list
@@ -47,12 +47,22 @@ and pat_descr =
   | Pat_const of const
   | Pat_tuple of pat list
   | Pat_record of (string * pat) list
-  | Pat_variant of Path.t * (pat list)
+  | Pat_variant of Path.t * pat
   | Pat_list of pat list
   | Pat_listcons of pat * pat
   | Pat_array of pat list
   (* | Pat_or of pat * pat *)
   | Pat_wildcard
+
+let iden_in_pat str pat = 
+  match pat with
+  | Pat_iden s -> s = str
+  | Pat_const _ | Pat_wildcard -> false
+  | Pat_tuple patl -> Lists.exists patl (fun pat -> iden_in_pat str pat) 
+  | Pat_record spatl -> Lists.exists spatl (fun (s,pat) -> iden_in_pat str pat)
+  | Pat_list patl -> Lists.exists patl (fun pat -> iden_in_pat str pat) 
+  | Pat_listcons (pat1, pat2) -> (iden_in_pat_str str pat1) || (iden_in_pat_str str pat2)
+  | Pat_array patl -> Lists.exists patl (fun pat -> iden_in_pat str pat) 
 
 let rec make_expr pexpr = 
     let ed, et = match pexpr.pexpr_descr with
