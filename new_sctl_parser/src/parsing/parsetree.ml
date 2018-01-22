@@ -24,7 +24,6 @@ and ptype_kind =
     | PTKalias of ptype
     | PTKvariant of (string * ptype) list
     | PTKrecord of (string * ptype) list
-
 and pfunction_decl = 
     {
         pfunction_params: ppat list;

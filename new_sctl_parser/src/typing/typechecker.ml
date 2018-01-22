@@ -25,6 +25,8 @@ let unify te tmname tmodules =
     | (Ttuple tl1, Ttuple tl2) :: tel' -> 
       normal_form ((List.rev_map2 (fun a b -> a,b) tl1 tl2)@tel')
     | (Tapply (path1, tel1), te) :: tel' -> 
+      let type_decl = find_type_decl path1 in
+      
 
 
 (* 
