@@ -14,9 +14,9 @@ type const =
   | Const_unit
 type expr = 
   {
-      expr_descr: expr_descr;
+      mutable expr_descr: expr_descr;
       expr_loc: Location.t;
-      expr_type: Type.type_expr;
+      mutable expr_type: Type.type_expr;
   }
 and expr_descr = 
   | Expr_path of Path.t
@@ -24,7 +24,7 @@ and expr_descr =
   | Expr_let of pat * expr
   | Expr_apply of expr * (expr list)
   | Expr_tuple of expr list
-  | Expr_variant of Path.t * expr
+  | Expr_variant of Path.t * (expr list)
   | Expr_record of (string * expr) list
   | Expr_with of expr * ((string * expr) list)
   | Expr_list of expr list
@@ -35,7 +35,6 @@ and expr_descr =
   | Expr_for of string * expr * expr * expr
   | Expr_match of expr * ((pat * expr) list)
   | Expr_assign of expr * expr
-  (* | Expr_constraint of expr * Types.t  *)
 and pat = 
   {
       pat_descr: pat_descr;
@@ -76,7 +75,7 @@ let rec make_expr pexpr =
     | Pexpr_tuple pel -> 
         let el = List.map (fun pe -> make_expr pe) pel in
         Expr_tuple el, Type.Ttuple (List.map (fun e -> e.expr_type) el)
-    | Pexpr_variant (path, pe) -> Expr_variant (path, make_expr pe), Type.new_type_var ()
+    | Pexpr_variant (path, pel) -> Expr_variant (path, List.map (fun pe -> make_expr pe) pel), Type.new_type_var ()
     | Pexpr_record (str_pe_list) -> Expr_record (List.map (fun (str,pe) -> str, make_expr pe) str_pe_list), Type.new_type_var ()
     | Pexpr_with (pe, str_pel) -> 
       let e = make_expr pe in
@@ -148,18 +147,7 @@ and make_pat ppat =
   | Ppat_wildcard -> Pat_wildcard, Type.new_type_var ()
   in
   {pat_descr = patd; pat_type = patt; pat_loc = ppat.ppat_loc}
-(* 
-let make_pexpr ped loc = 
-  {
-      pexpr_descr = ped;
-      pexpr_loc = loc;
-  }
 
-let make_ppat ppatd loc = 
-  {
-      ppat_descr = ppatd;
-      ppat_loc = loc;
-  } *)
 type value =
   | Vunit
   | Vint of int

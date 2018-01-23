@@ -14,7 +14,7 @@ and pexpr_descr =
     | Pexpr_let of ppat * pexpr
     | Pexpr_apply of pexpr * (pexpr list)
     | Pexpr_tuple of pexpr list
-    | Pexpr_variant of Path.t * pexpr
+    | Pexpr_variant of Path.t * (pexpr list)
     | Pexpr_record of (string * pexpr) list
     | Pexpr_with of pexpr * ((string * pexpr) list)
     | Pexpr_list of pexpr list

@@ -26,8 +26,19 @@ definitions: {[]}
 ;
 
 definition:
-      Value id=Iden option(type) Equal e = expr {}
-    | Datatype 
+      Value p=pattern ot=option(typ) Equal e=expr {Pdef_value (p,opt,e)}
+    | Datatype tname=Iden Equal t=typ {Pdef_type (tname, {params=[];arity=0;kind=PTKalias t;ptype_decl_loc=Location.make $startpos(t) $endpos(t)})}
+    | Datatype tname=Iden targ=Iden Equal t=typ {Pdef_type (tname, {params=[targ];arity=1;kind=PTKalias t;ptype_decl_loc=Location.make $startpos(t) $endpos(t)})}
+    | Datatype tname=Iden LB1 targs=separated_list(Comma, Iden) RB1 Equal t=typ {Pdef_type (tname, {params=targs;arity=List.length targs;kind=PTKalias t;ptype_decl_loc=Location.make $startpos(t) $endpos(t)})}
+    | Datatype tname=Iden Equal tk=type_kind {Pdef_value (tname, {params=[];arity=0;kind=tk;ptype_decl_loc=Location.make $startpos(tk) $endpos(tk)})}
+;
+
+
+typ:
+;
+
+type_kind:
+;
 
 
 %%

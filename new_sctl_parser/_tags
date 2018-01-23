@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: e47fd3594a115422f1b7411c1d6ff147)
+# DO NOT EDIT (digest: 1b5b39398fb35c479cd59cf9e8f4b1c7)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -14,5 +14,45 @@ true: annot, bin_annot
 ".git": not_hygienic
 "_darcs": -traverse
 "_darcs": not_hygienic
+# Library parsing
+"src/parsing/parsing.cmxs": use_parsing
+"src/parsing/lexer.cmx": for-pack(Parsing)
+"src/parsing/parser.cmx": for-pack(Parsing)
+"src/parsing/location.cmx": for-pack(Parsing)
+"src/parsing/parsetree.cmx": for-pack(Parsing)
+"src/parsing/pformula.cmx": for-pack(Parsing)
+"src/parsing/path.cmx": for-pack(Parsing)
+"src/parsing/pterm.cmx": for-pack(Parsing)
+"src/parsing/ptype.cmx": for-pack(Parsing)
+"src/parsing/dep.cmx": for-pack(Parsing)
+# Library utils
+"src/utils/utils.cmxs": use_utils
+"src/utils/lists.cmx": for-pack(Utils)
+"src/utils/options.cmx": for-pack(Utils)
+"src/utils/pairs.cmx": for-pack(Utils)
+# Library typing
+"src/typing/typing.cmxs": use_typing
+"src/typing/term.cmx": for-pack(Typing)
+"src/typing/type.cmx": for-pack(Typing)
+"src/typing/typechecker.cmx": for-pack(Typing)
+"src/typing/typing.cmx": for-pack(Typing)
+"src/typing/evaluation.cmx": for-pack(Typing)
+"src/typing/formula.cmx": for-pack(Typing)
+<src/typing/*.ml{,i,y}>: use_parsing
+<src/typing/*.ml{,i,y}>: use_utils
+# Library proving
+"src/proving/proving.cmxs": use_proving
+"src/proving/prover.cmx": for-pack(Proving)
+<src/proving/*.ml{,i,y}>: use_parsing
+<src/proving/*.ml{,i,y}>: use_typing
+<src/proving/*.ml{,i,y}>: use_utils
 # Executable sctl
+<src/main.{native,byte}>: use_parsing
+<src/main.{native,byte}>: use_proving
+<src/main.{native,byte}>: use_typing
+<src/main.{native,byte}>: use_utils
+<src/*.ml{,i,y}>: use_parsing
+<src/*.ml{,i,y}>: use_proving
+<src/*.ml{,i,y}>: use_typing
+<src/*.ml{,i,y}>: use_utils
 # OASIS_STOP

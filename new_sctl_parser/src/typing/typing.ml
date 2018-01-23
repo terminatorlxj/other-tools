@@ -37,7 +37,16 @@ let find_type_def tmodule str =
     | (Tdef_type (s, type_decl))::defs' -> if str = s then Some type_decl else find_in_definitions def'
     | _ :: def' -> find_in_definitions def' in
     find_in_definitions tmodule.definitions
+
+let find_expr_def tmodule str = 
+    let rec find_in_definitions defs =
+    match defs with
+    | [] -> None
+    | (Tdef_value (pat, expr))::defs' -> if iden_in_pat s pat then Some expr else find_in_definitions def'
+    | _ :: def' -> find_in_definitions def' in
+    find_in_definitions tmodule.definitions
     
+
 let rec expand_type_path te tmodule tmodules = 
     match te with
     | Tapply (Piden s, tel) -> 
@@ -49,30 +58,45 @@ let rec expand_type_path te tmodule tmodules =
             List.iter (fun tmname ->
                 let tmodule = Hashtbl.find tmodules tmname in
                 match find_type_def tmodule s with
-                | Some _ -> found_in_imported := true; founded_tmname := tmname
+                | Some _ -> found_in_imported := true; if !founded_tmname = "" then founded_tmname := tmname
                 | None -> ()
             ) tmodule.imported;
             if !founded_in_imported then
                 Tapply (Pdot (!founded_tmname, Piden s), List.map (fun te -> expand_type_path te tmodule) tel)
             else 
-                raise (Not_found (s, tmodule.name))
+                raise (Not_defined (s, tmodule.name))
         end
-        (* if find_type_def tmodule s <> None then
-            Tapply (Pdot (tmodule.name, Piden s), List.map (fun te -> expand_type_path te tmodule) tel)
-        else 
-            raise (Not_defined (s, tmodule.name)) *)
     | Tapply (Pdot (tmname, Piden s), tel) -> 
         begin match find_type_def (Hashtbl.find tmodules tmname) s with
         | Some _ -> Tapply (Pdot (tmname, Piden s), List.map (fun te -> expand_type_path te tmodule) tel)
         | None -> raise (Not_defined (s, tmname))
         end
-        (* Tapply (path, List.map (fun te -> expand_type_path te tmodule) tel) *)
     | Tapply (path, _) -> raise (Invalid_path path)
     | Ttuple tel -> Ttuple (List.map (fun te -> expand_type_path te tmodule) tel)
     | Tarrow (te1, te2) -> Tarrow (expand_type_path te1 tmodule, expand_type_path te2 tmodule)
     | Tarray te1 -> Tarray (expand_type_path te1 tmodule)
     | Tlist te1 -> Tlist (expand_type_path te1 tmodule)
     | Tvar _ | Tint | Tbool | Tunit | Tfloat | Tstring -> te
+
+let rec expand_expr_path e tmodule tmodules = 
+    match e.expr_descr with
+    | Expr_path (Piden s) -> 
+        begin match find_expr_def tmodule s with
+        | Some _ -> Expr_path (Pdot (tmodule.name, Piden s))
+        | None ->
+            let found_in_imported = ref false 
+            and founded_tmname = ref "" in
+            List.iter (fun tmname ->
+                let tmodule = Hashtbl.find tmodules tmname in
+                match find_expr_def tmodule s with
+                | Some _ -> found_in_imported := true; if !founded_tmname = "" then founded_tmname := tmname
+                | None -> ()
+            ) tmodule.imported;
+            if !found_in_imported then
+                Expr_path (Pdot (!founded_tmname, Piden s))
+            else
+                raise (Not_defined (s, tmodule.name))
+        end
 
 let make_type_decl_instance type_decl type_args = 
     let type_ctx = List.zip type_decl.params type_args = 

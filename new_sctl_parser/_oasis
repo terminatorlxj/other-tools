@@ -26,7 +26,7 @@ Library parsing
   BuildTools: ocamlbuild
   FindlibName: parsing
   CompiledObject: best
-  Modules: Lexer, Parser, Location, Parsetree, Pformula, Ppath, Pterm, Ptype
+  Modules: Lexer, Parser, Location, Parsetree, Pformula, Path, Pterm, Ptype, Dep
 
 Library typing
   Pack: true
@@ -34,7 +34,7 @@ Library typing
   BuildTools: ocamlbuild
   FindlibName: typing
   CompiledObject: best
-  Modules: Term, Type, Typechecking
+  Modules: Term, Type, Typechecker, Typing, Evaluation, Formula
   BuildDepends: parsing, utils
 
 Library proving
@@ -43,7 +43,7 @@ Library proving
   BuildTools: ocamlbuild
   FindlibName: proving
   CompiledObject: best
-  Modules:
+  Modules: Prover
   BuildDepends: parsing, typing
 
 Library utils
@@ -52,4 +52,4 @@ Library utils
   BuildTools: ocamlbuild
   FindlibName: utils
   CompiledObject: best
-  Modules: Lists
+  Modules: Lists, Options, Pairs

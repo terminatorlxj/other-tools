@@ -1,0 +1,15 @@
+*.cm[ioxa]
+*.bak
+*.mllib
+*.mldylib
+*.o
+*.mlpack
+_build/*
+_tags
+configure
+setup.ml
+setup.data
+myocamlbuild.ml
+lexer.ml
+parser.mli
+parser.ml
