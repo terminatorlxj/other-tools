@@ -1,5 +1,9 @@
 %{
     open Parsetree
+    open Pterm
+    open Pformula
+    open Ptype
+    open Location
 %}
 
 %token <int>Int 
@@ -43,7 +47,7 @@ typ: TInt {PTint}
     | TList typ {PTlist $2}
     | typ Arrow typ {PTarrow ($1, $3)}
     | tuple_type {PTtuple $1}
-    | path list(typ) {PTapply (Path.make_path $1, $2)}
+    | variable_path list(typ) {PTapply (Path.make_path $1, $2)}
     | LB1 typ RB1 {$2}
 ;
 
@@ -51,11 +55,14 @@ tuple_type: typ Comma typ  {[$1;$2]}
     | typ Comma tuple_type {$1::$3}
     ;
 
-path: Iden {$1}
-    | UIden {$1}
-    | UIden Dot path {$1::$3}
-    | Iden Dot path {$1::$3}
+variable_path: Iden {[$1]}
+    | UIden Dot variable_path {$1::$3}
+    | Iden Dot variable_path {$1::$3}
     ; 
+
+variant_path: UIden {[$1]}
+    | UIden Dot variant_path {$1::$3}
+    ;
 
 type_kind: LB3 separated_nonempty_list(Semicolon, separated_pair(Iden, Colon, typ)) RB3 {PTKrecord $2}
     | separated_nonempty_list (Vertical, pair(UIden, typ)) {PTKvariant $1}
@@ -63,29 +70,39 @@ type_kind: LB3 separated_nonempty_list(Semicolon, separated_pair(Iden, Colon, ty
 
 /* uiden_type_pair: UIden typ {($1,$2)}; */
 
-expr: expr_single Semicolon separated_nonempty_list(Semicolon, expr_single) {Pexpr_sequence ($1::$3)}
+expr: expr_single Semicolon separated_nonempty_list(Semicolon, expr_single) {make_pexpr (Pexpr_sequence ($1::$3)) (Location.make $startpos($1) $endpos($1))}
     | expr_single {$1}
     | LB1 expr RB1 {$2}
     ;
-expr_single: path {Pexpr_path $1}
-    | Int {Pexpr_const (Pconst_int $1)}
-    | True {Pexpr_const (Pconst_bool true)}
-    | False {Pexpr_const (Pconst_bool false)}
-    | String {Pexpr_const (Pconst_string $1)}
-    | Float {Pexpr_const (Pconst_float $1)}
-    | LB1 RB1 {Pexpr_const (Pconst_unit)}
-    | Let pattern Equal expr_single {Pexpr_let ($2, $4)}
-    | expr_single Add expr_single   {Pexpr_apply (Path.make_path ["+"], [$1;$3])}
-    | expr_single Minus expr_single   {Pexpr_apply (Path.make_path ["-"], [$1;$3])}
-    | expr_single Mult expr_single   {Pexpr_apply (Path.make_path ["*"], [$1;$3])}
-    | expr_single Slash expr_single   {Pexpr_apply (Path.make_path ["/"], [$1;$3])}
-    | expr_single LT expr_single   {Pexpr_apply (Path.make_path ["<"], [$1;$3])}
-    | expr_single GT expr_single   {Pexpr_apply (Path.make_path [">"], [$1;$3])}
-    | expr_single LE expr_single   {Pexpr_apply (Path.make_path ["<="], [$1;$3])}
-    | expr_single GE expr_single   {Pexpr_apply (Path.make_path [">="], [$1;$3])}
-    | expr_single Ando expr_single   {Pexpr_apply (Path.make_path ["&&"], [$1;$3])}
-    | expr_single Oro expr_single   {Pexpr_apply (Path.make_path ["||"], [$1;$3])}
-    | Negb expr_single   {Pexpr_apply (Path.make_path ["!"], [$2])}
-    | Minus expr_single   {Pexpr_apply (Path.make_path ["-"], [$2])}
-    | path LB1 separated_nonempty_list(Comma, ) RB1
+expr_single: variable_path {make_pexpr (Pexpr_path $1) (Location.make $startpos($1) $endpos($1))}
+    | Int {make_pexpr (Pexpr_const (Pconst_int $1)) (Location.make $startpos($1) $endpos($1))}
+    | True {make_pexpr (Pexpr_const (Pconst_bool true)) (Location.make $startpos($1) $endpos($1))}
+    | False {make_pexpr (Pexpr_const (Pconst_bool false)) (Location.make $startpos($1) $endpos($1))}
+    | String {make_pexpr (Pexpr_const (Pconst_string $1)) (Location.make $startpos($1) $endpos($1))}
+    | Float {make_pexpr (Pexpr_const (Pconst_float $1)) (Location.make $startpos($1) $endpos($1))}
+    | LB1 RB1 {make_pexpr (Pexpr_const (Pconst_unit)) (Location.make $startpos($1) $endpos($2))}
+    | Let pattern Equal expr_single {make_pexpr (Pexpr_let ($2, $4)) (Location.make $startpos($1) $endpos($4))}
+    | expr_single Add expr_single   {make_pexpr (Pexpr_apply (Path.make_path ["+"], [$1;$3])) (Location.make $startpos($1) $endpos($3))}
+    | expr_single Minus expr_single   {make_pexpr (Pexpr_apply (Path.make_path ["-"], [$1;$3])) (Location.make $startpos($1) $endpos($3))}
+    | expr_single Mult expr_single   {make_pexpr (Pexpr_apply (Path.make_path ["*"], [$1;$3])) (Location.make $startpos($1) $endpos($3))}
+    | expr_single Slash expr_single   {make_pexpr (Pexpr_apply (Path.make_path ["/"], [$1;$3])) (Location.make $startpos($1) $endpos($3))}
+    | expr_single LT expr_single   {make_pexpr (Pexpr_apply (Path.make_path ["<"], [$1;$3])) (Location.make $startpos($1) $endpos($3))}
+    | expr_single GT expr_single   {make_pexpr (Pexpr_apply (Path.make_path [">"], [$1;$3])) (Location.make $startpos($1) $endpos($3))}
+    | expr_single LE expr_single   {make_pexpr (Pexpr_apply (Path.make_path ["<="], [$1;$3])) (Location.make $startpos($1) $endpos($3))}
+    | expr_single GE expr_single   {make_pexpr (Pexpr_apply (Path.make_path [">="], [$1;$3])) (Location.make $startpos($1) $endpos($3))}
+    | expr_single Ando expr_single   {make_pexpr (Pexpr_apply (Path.make_path ["&&"], [$1;$3])) (Location.make $startpos($1) $endpos($3))}
+    | expr_single Oro expr_single   {make_pexpr (Pexpr_apply (Path.make_path ["||"], [$1;$3])) (Location.make $startpos($1) $endpos($3))}
+    | Negb expr_single   {make_pexpr (Pexpr_apply (Path.make_path ["!"], [$2])) (Location.make $startpos($1) $endpos($2))}
+    | Minus expr_single   {make_pexpr (Pexpr_apply (Path.make_path ["-"], [$2])) (Location.make $startpos($1) $endpos($2))}
+    | variable_path LB1 params=separated_nonempty_list(Comma, Iden) RB1 {
+        make_pexpr 
+            (Pexpr_apply (Path.make_path $1, make_ppat (Ppat_tuple (List.map (fun param -> Ppat_iden param) params)) 
+            (Location.make $startpos(params) $endpos(params)))) (Location.make $startpos($1) $endpos($4))}
+    | variant_path LB1 expr_single RB1 {make_pexpr (Pexpr_variant (Path.make_path $1, [$3])) (Location.make $startpos($1) $endpos($4))}
+    | 
+    ;
+
+pattern: Iden {make_ppat (Ppat_iden $1) (Location.make $startpos($1) $endpos($1))}
+    | 
+
 %%
