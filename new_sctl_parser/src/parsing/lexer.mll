@@ -7,6 +7,7 @@ let float = ['0'-'9']+ '.' ['0'-'9']*
 let iden = ['a'-'z'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '-']*
 let uiden = ['A'-'Z'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '-']*
 let str = iden | uiden
+(* let op = ['+' '-' '*' '/' '>' '<' '=' '!'] | "&&" | "||" *)
 let nl = '\r' | '\n' | "\r\n"
 
 rule token = parse 
@@ -54,7 +55,7 @@ rule token = parse
   | float as f    {Float (float_of_string f)}
   | iden as id  {Iden id}
   | uiden as ui {UIden ui}
-  | \"str\" as s {String s}
+  | "\""str"\"" as s {String s}
   | "|"         {Vertical}
   | "!"         {Negb}
   | "&&"        {Ando}
@@ -83,11 +84,12 @@ rule token = parse
   | "."         {Dot}
   | ".."        {DotDot}
   | "+"         {Add}
-  | "+."        {AddDot}
+  (* | "+."        {AddDot} *)
   | "-"         {Minus}
-  | "-."        {MinusDot}
+  (* | "-."        {MinusDot} *)
   | "*"         {Mult}
-  | "*."        {MultDot}
+  (* | "*."        {MultDot} *)
+  | "/"         {Slash}
   | ":="        {Assigno}
   | "@"         {At}
   | nl        {Lexing.new_line lexbuf; token lexbuf}

@@ -12,7 +12,7 @@ and pexpr_descr =
     | Pexpr_path of Path.t
     | Pexpr_const of pconst
     | Pexpr_let of ppat * pexpr
-    | Pexpr_apply of pexpr * (pexpr list)
+    | Pexpr_apply of Path.t * (pexpr list)
     | Pexpr_tuple of pexpr list
     | Pexpr_variant of Path.t * (pexpr list)
     | Pexpr_record of (string * pexpr) list

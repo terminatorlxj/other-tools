@@ -7,7 +7,7 @@
 %token <string>Iden UIden
 %token <string>String
 %token Import Datatype Vertical Value Let Match With Underline Model Next If Then Else For In While Do Done
-%token LB1 RB1 LB2 RB2 LB3 RB3 Equal Non_Equal LT GT LE GE Comma Semicolon Dot DotDot Arrow EOF Add AddDot Minus MinusDot Mult MultDot
+%token LB1 RB1 LB2 RB2 LB3 RB3 Equal Non_Equal LT GT LE GE Comma Semicolon Dot DotDot Arrow EOF Add Minus Mult Slash
 %token Negb Ando Oro And Or Neg LArrow Colon ColonColon Top Bottom AX EX AF EG AR EU True False Function
 %token TList TFloat TArray TInt TBool TString TUnt At Init Transition Atomic Spec Fairness Assigno 
 %start <Parsetree.pmodule>program
@@ -75,5 +75,17 @@ expr_single: path {Pexpr_path $1}
     | Float {Pexpr_const (Pconst_float $1)}
     | LB1 RB1 {Pexpr_const (Pconst_unit)}
     | Let pattern Equal expr_single {Pexpr_let ($2, $4)}
-    |  
+    | expr_single Add expr_single   {Pexpr_apply (Path.make_path ["+"], [$1;$3])}
+    | expr_single Minus expr_single   {Pexpr_apply (Path.make_path ["-"], [$1;$3])}
+    | expr_single Mult expr_single   {Pexpr_apply (Path.make_path ["*"], [$1;$3])}
+    | expr_single Slash expr_single   {Pexpr_apply (Path.make_path ["/"], [$1;$3])}
+    | expr_single LT expr_single   {Pexpr_apply (Path.make_path ["<"], [$1;$3])}
+    | expr_single GT expr_single   {Pexpr_apply (Path.make_path [">"], [$1;$3])}
+    | expr_single LE expr_single   {Pexpr_apply (Path.make_path ["<="], [$1;$3])}
+    | expr_single GE expr_single   {Pexpr_apply (Path.make_path [">="], [$1;$3])}
+    | expr_single Ando expr_single   {Pexpr_apply (Path.make_path ["&&"], [$1;$3])}
+    | expr_single Oro expr_single   {Pexpr_apply (Path.make_path ["||"], [$1;$3])}
+    | Negb expr_single   {Pexpr_apply (Path.make_path ["!"], [$2])}
+    | Minus expr_single   {Pexpr_apply (Path.make_path ["-"], [$2])}
+    | path LB1 separated_nonempty_list(Comma, ) RB1
 %%
