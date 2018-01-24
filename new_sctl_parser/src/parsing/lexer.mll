@@ -6,6 +6,7 @@ let integer = ['0'-'9']+
 let float = ['0'-'9']+ '.' ['0'-'9']*
 let iden = ['a'-'z'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '-']*
 let uiden = ['A'-'Z'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '-']*
+let str = iden | uiden
 let nl = '\r' | '\n' | "\r\n"
 
 rule token = parse 
@@ -15,6 +16,7 @@ rule token = parse
   | "float"     {TFloat}
   | "unit"      {TUnit}
   | "bool"      {TBool}
+  | "string"    {TString}
   | "array"     {TArray}
   | "list"      {TList}
   | "function"  {Function}
@@ -52,6 +54,7 @@ rule token = parse
   | float as f    {Float (float_of_string f)}
   | iden as id  {Iden id}
   | uiden as ui {UIden ui}
+  | \"str\" as s {String s}
   | "|"         {Vertical}
   | "!"         {Negb}
   | "&&"        {Ando}

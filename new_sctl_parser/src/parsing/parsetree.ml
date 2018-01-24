@@ -22,7 +22,7 @@ and ptype_decl = {
     }
 and ptype_kind = 
     | PTKalias of ptype
-    | PTKvariant of (Path.t * ptype) list
+    | PTKvariant of (string * ptype) list
     | PTKrecord of (string * ptype) list
 and pfunction_decl = 
     {
